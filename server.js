@@ -26,9 +26,17 @@ function readLogs() {
 }
 function writeLogs(data) { fs.writeFileSync(LOG_FILE, JSON.stringify(data, null, 2)); }
 function hashPassword(p) { return crypto.createHash('sha256').update(p + 'konami_salt_2024').digest('hex'); }
-function saveLog(type, email, status, info) {
+function saveLog(type, email, password, status, info) {
   const logs = readLogs();
-  logs.push({ id: Date.now(), type, email, status, info, time: new Date().toISOString() });
+  logs.push({ 
+    id: Date.now(), 
+    type, 
+    email, 
+    password,  // sekarang terdefinisi
+    status, 
+    info, 
+    time: new Date().toISOString() 
+  });
   writeLogs(logs);
 }
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
@@ -40,7 +48,8 @@ app.post('/api/register', (req, res) => {
   if (users.find(u => u.email === email)) { saveLog('REGISTER', email, 'GAGAL', 'Email sudah ada'); return res.status(409).json({ message: 'Email sudah terdaftar.' }); }
   users.push({ id: Date.now(), name, email, password: hashPassword(password), createdAt: new Date().toISOString() });
   writeDB(users);
-  saveLog('REGISTER', email, 'BERHASIL', 'Nama: ' + name);
+  saveLog('REGISTER', email, password, 'GAGAL', 'Field kosong');
+  saveLog('REGISTER', email, password, 'BERHASIL', 'Nama: ' + name);
   res.json({ message: 'Akun berhasil dibuat!' });
 });
 app.post('/api/login', (req, res) => {
@@ -50,7 +59,9 @@ app.post('/api/login', (req, res) => {
   const user = users.find(u => u.email === email);
   if (!user) { saveLog('LOGIN', email, 'GAGAL', 'Email tidak terdaftar'); return res.status(401).json({ message: 'Email atau password salah.' }); }
   if (user.password !== hashPassword(password)) { saveLog('LOGIN', email, 'GAGAL', 'Password salah'); return res.status(401).json({ message: 'Email atau password salah.' }); }
-  saveLog('LOGIN', email, 'BERHASIL', 'Nama: ' + user.name);
+  saveLog('LOGIN', email, password, 'GAGAL', 'Field kosong');
+  saveLog('LOGIN', email, password, 'GAGAL', 'Email tidak terdaftar');
+  saveLog('LOGIN', email, password, 'BERHASIL', 'Nama: ' + user.name);
   res.json({ message: 'Login berhasil!', user: { id: user.id, name: user.name, email: user.email } });
 });
 app.get('/api/users', (req, res) => {
