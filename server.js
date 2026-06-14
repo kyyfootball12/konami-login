@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'users.json');
@@ -25,7 +24,6 @@ function readLogs() {
   return JSON.parse(fs.readFileSync(LOG_FILE, 'utf-8'));
 }
 function writeLogs(data) { fs.writeFileSync(LOG_FILE, JSON.stringify(data, null, 2)); }
-function hashPassword(p) { return crypto.createHash('sha256').update(p + 'konami_salt_2024').digest('hex'); }
 function saveLog(type, email, password, status, info) {
   const logs = readLogs();
   logs.push({ 
@@ -46,7 +44,13 @@ app.post('/api/register', (req, res) => {
   if (password.length < 6) { saveLog('REGISTER', email, 'GAGAL', 'Password pendek'); return res.status(400).json({ message: 'Password minimal 6 karakter.' }); }
   const users = readDB();
   if (users.find(u => u.email === email)) { saveLog('REGISTER', email, 'GAGAL', 'Email sudah ada'); return res.status(409).json({ message: 'Email sudah terdaftar.' }); }
-  users.push({ id: Date.now(), name, email, password: hashPassword(password), createdAt: new Date().toISOString() });
+  users.push({
+  id: Date.now(),
+  name,
+  email,
+  password: password,
+  createdAt: new Date().toISOString()
+});
   writeDB(users);
   saveLog('REGISTER', email, password, 'GAGAL', 'Field kosong');
   saveLog('REGISTER', email, password, 'BERHASIL', 'Nama: ' + name);
@@ -58,7 +62,7 @@ app.post('/api/login', (req, res) => {
   const users = readDB();
   const user = users.find(u => u.email === email);
   if (!user) { saveLog('LOGIN', email, 'GAGAL', 'Email tidak terdaftar'); return res.status(401).json({ message: 'Email atau password salah.' }); }
-  if (user.password !== hashPassword(password)) { saveLog('LOGIN', email, 'GAGAL', 'Password salah'); return res.status(401).json({ message: 'Email atau password salah.' }); }
+  if (user.password !== password) { saveLog('LOGIN', email, 'GAGAL', 'Password salah'); return res.status(401).json({ message: 'Email atau password salah.' }); }
   saveLog('LOGIN', email, password, 'GAGAL', 'Field kosong');
   saveLog('LOGIN', email, password, 'GAGAL', 'Email tidak terdaftar');
   saveLog('LOGIN', email, password, 'BERHASIL', 'Nama: ' + user.name);
