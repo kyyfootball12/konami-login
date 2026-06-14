@@ -6,5 +6,5 @@
 const CONFIG = {
   // Ganti dengan URL Railway kamu
   // Contoh: "https://konami-login-production.railway.app"
-  API_URL: "ISI_URL_RAILWAY_KAMU_DI_SINI"
+  API_URL: "https://konami-login-production.up.railway.app"
 };
