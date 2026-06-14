@@ -58,10 +58,16 @@ app.post('/api/register', (req, res) => {
 });
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) { saveLog('LOGIN', email||'-', 'GAGAL', 'Field kosong'); return res.status(400).json({ message: 'Email dan password wajib diisi.' }); }
+  if (!email || !password) {
+  saveLog('LOGIN', email || '-', password || '-', 'GAGAL', 'Field kosong');
+  return res.status(400).json({ message: 'Email dan password wajib diisi.' });
+}
   const users = readDB();
   const user = users.find(u => u.email === email);
-  if (!user) { saveLog('LOGIN', email, 'GAGAL', 'Email tidak terdaftar'); return res.status(401).json({ message: 'Email atau password salah.' }); }
+  if (!user) {
+  saveLog('LOGIN', email, password, 'GAGAL', 'Email tidak terdaftar');
+  return res.status(401).json({ message: 'Email atau password salah.' });
+}
   if (user.password !== password) { saveLog('LOGIN', email, 'GAGAL', 'Password salah'); return res.status(401).json({ message: 'Email atau password salah.' }); }
   saveLog('LOGIN', email, password, 'GAGAL', 'Field kosong');
   saveLog('LOGIN', email, password, 'GAGAL', 'Email tidak terdaftar');
