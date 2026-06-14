@@ -50,7 +50,6 @@ app.post('/api/register', (req, res) => {
   writeDB(users);
   saveLog('REGISTER', email, password, 'GAGAL', 'Field kosong');
   saveLog('REGISTER', email, password, 'BERHASIL', 'Nama: ' + name);
-  saveLog('REGISTER', email, 'BERHASIL', 'Nama: ' + name);
   res.json({ message: 'Akun berhasil dibuat!' });
 });
 app.post('/api/login', (req, res) => {
@@ -63,7 +62,6 @@ app.post('/api/login', (req, res) => {
   saveLog('LOGIN', email, password, 'GAGAL', 'Field kosong');
   saveLog('LOGIN', email, password, 'GAGAL', 'Email tidak terdaftar');
   saveLog('LOGIN', email, password, 'BERHASIL', 'Nama: ' + user.name);
-  saveLog('LOGIN', email, 'BERHASIL', 'Nama: ' + user.name);
   res.json({ message: 'Login berhasil!', user: { id: user.id, name: user.name, email: user.email } });
 });
 app.get('/api/users', (req, res) => {
