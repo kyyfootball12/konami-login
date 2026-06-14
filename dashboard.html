@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KONAMI ID - Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; min-height: 100vh; }
+    .topbar { width: 100%; background: white; padding: 14px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 22px; font-weight: 900; color: #CC0000; }
+    .btn-logout { background: none; border: 1px solid #CC0000; color: #CC0000; border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-weight: 600; }
+    .btn-logout:hover { background: #CC0000; color: white; }
+    .page { display: flex; flex-direction: column; align-items: center; padding: 24px 16px 60px; }
+    .card { background: white; border-radius: 12px; border: 1px solid #ddd; padding: 28px 24px; width: 100%; max-width: 400px; margin-bottom: 16px; }
+    .section-title { font-size: 12px; font-weight: 700; color: #CC0000; letter-spacing: 1.5px; margin-bottom: 20px; text-transform: uppercase; }
+    .avatar { width: 60px; height: 60px; background: #CC0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700; margin-bottom: 16px; }
+    .welcome-name { font-size: 20px; font-weight: 700; color: #222; margin-bottom: 4px; }
+    .welcome-email { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #888; }
+    .info-value { color: #333; font-weight: 600; }
+    .badge-active { background: #e8f5e9; color: #2e7d32; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">KONAMI</div>
+  <button class="btn-logout" onclick="handleLogout()">Logout</button>
+</div>
+<div class="page">
+  <div class="card">
+    <div class="section-title">My Account</div>
+    <div class="avatar" id="avatarInitial">?</div>
+    <div class="welcome-name" id="welcomeName">Loading...</div>
+    <div class="welcome-email" id="welcomeEmail">—</div>
+    <div class="info-row">
+      <span class="info-label">Status</span>
+      <span class="info-value"><span class="badge-active">✔ Active</span></span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Account Type</span>
+      <span class="info-value">Standard</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Region</span>
+      <span class="info-value">Indonesia</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Member Since</span>
+      <span class="info-value" id="memberSince">—</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const raw = localStorage.getItem('konami_user');
+  if (!raw) { window.location.href = 'index.html'; }
+  const user = JSON.parse(raw || '{}');
+
+  document.getElementById('welcomeName').textContent = 'Halo, ' + (user.name || 'User') + '!';
+  document.getElementById('welcomeEmail').textContent = user.email || '';
+  document.getElementById('avatarInitial').textContent = (user.name || 'U')[0].toUpperCase();
+  document.getElementById('memberSince').textContent = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  function handleLogout() {
+    localStorage.removeItem('konami_user');
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

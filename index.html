@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KONAMI ID - Login</title>
+  <script src="config.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; min-height: 100vh; }
+    .topbar { width: 100%; background: white; padding: 14px 20px; border-bottom: 1px solid #ddd; }
+    .logo { font-size: 22px; font-weight: 900; color: #CC0000; letter-spacing: 1px; }
+    .page { display: flex; flex-direction: column; align-items: center; padding: 24px 16px 60px; }
+    .card { background: white; border-radius: 12px; border: 1px solid #ddd; padding: 32px 24px; width: 100%; max-width: 400px; }
+    .card-title { font-size: 26px; font-weight: 300; color: #999; text-align: center; letter-spacing: 4px; margin-bottom: 28px; }
+    .notice { border: 1.5px solid #CC0000; border-radius: 8px; padding: 14px 16px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+    .notice-arrow { color: #CC0000; font-size: 11px; margin-top: 2px; flex-shrink: 0; }
+    .notice-text { font-size: 14px; color: #444; line-height: 1.5; }
+    .form-group { margin-bottom: 14px; }
+    .input-field { width: 100%; border: 1px solid #ccc; border-radius: 8px; padding: 14px 16px; font-size: 15px; color: #333; background: #fafafa; outline: none; }
+    .input-field::placeholder { color: #aaa; }
+    .input-field:focus { border-color: #CC0000; background: white; }
+    .error-msg { color: #CC0000; font-size: 12px; margin-top: 5px; display: none; }
+    .error-msg.show { display: block; }
+    .btn-login { width: 100%; background: #CC0000; color: white; border: none; border-radius: 8px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+    .btn-login:hover { background: #aa0000; }
+    .btn-login:disabled { background: #ccc; cursor: not-allowed; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .divider-line { flex: 1; height: 1px; background: #ddd; }
+    .divider-text { font-size: 13px; color: #aaa; }
+    .btn-passkey { width: 100%; background: #8B0000; color: white; border: none; border-radius: 8px; padding: 16px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; justify-content: center; line-height: 1.4; }
+    .btn-passkey:hover { background: #6e0000; }
+    .link-blue { color: #1a73e8; font-size: 14px; text-align: center; display: block; margin: 16px 0 4px; cursor: pointer; text-decoration: underline; }
+    .footer-text { font-size: 13px; color: #888; text-align: center; margin-top: 16px; }
+    .footer-links { display: flex; justify-content: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .footer-links a { font-size: 12px; color: #1a73e8; text-decoration: none; }
+    .footer-links span { color: #ccc; font-size: 12px; }
+    .server-warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px; color: #856404; display: none; }
+    .server-warning.show { display: block; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; max-width: 90vw; text-align: center; }
+    .toast.show { opacity: 1; }
+    .toast.success { background: #2e7d32; }
+    .toast.error { background: #CC0000; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">KONAMI</div>
+</div>
+
+<div class="page">
+  <div class="card">
+    <div class="card-title">KONAMI ID</div>
+
+    <!-- Peringatan jika URL belum diisi -->
+    <div class="server-warning" id="serverWarning">
+      ⚠️ URL Railway belum diisi! Buka file <strong>config.js</strong> dan isi URL Railway kamu.
+    </div>
+
+    <div class="notice">
+      <span class="notice-arrow">▶</span>
+      <span class="notice-text">Notice of Service Termination in Russia and Belarus</span>
+    </div>
+
+    <div class="form-group">
+      <input class="input-field" type="email" id="emailInput" placeholder="KONAMI ID / E-mail address" />
+      <div class="error-msg" id="emailError">Masukkan email yang valid.</div>
+    </div>
+
+    <div class="form-group">
+      <input class="input-field" type="password" id="passwordInput" placeholder="Password" />
+      <div class="error-msg" id="passwordError">Password minimal 6 karakter.</div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="handleLogin()">Login</button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">OR</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <button class="btn-passkey">
+      <span style="font-size:20px">🔑</span>
+      <span>Currently Logged in with<br>Passkey</span>
+    </button>
+
+    <a class="link-blue" href="#" onclick="return false;">What is Passkey?</a>
+
+    <p class="footer-text">Don't have a KONAMI ID?</p>
+    <div class="footer-links">
+      <a href="register.html">Create an account</a>
+      <span>|</span>
+      <a href="#">Help</a>
+      <span>|</span>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Cek apakah URL Railway sudah diisi
+  window.onload = function() {
+    if (!CONFIG.API_URL || CONFIG.API_URL === "ISI_URL_RAILWAY_KAMU_DI_SINI") {
+      document.getElementById('serverWarning').classList.add('show');
+    }
+  };
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  async function handleLogin() {
+    if (!CONFIG.API_URL || CONFIG.API_URL === "ISI_URL_RAILWAY_KAMU_DI_SINI") {
+      showToast('URL Railway belum diisi di config.js!', 'error');
+      return;
+    }
+
+    const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    const btn = document.getElementById('loginBtn');
+
+    document.getElementById('emailError').classList.remove('show');
+    document.getElementById('passwordError').classList.remove('show');
+
+    let valid = true;
+    if (!validateEmail(email)) { document.getElementById('emailError').classList.add('show'); valid = false; }
+    if (password.length < 6) { document.getElementById('passwordError').classList.add('show'); valid = false; }
+    if (!valid) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Logging in...';
+
+    try {
+      const res = await fetch(CONFIG.API_URL + '/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('konami_user', JSON.stringify(data.user));
+        showToast('Login berhasil! Selamat datang.', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+      } else {
+        showToast(data.message || 'Email atau password salah.', 'error');
+      }
+    } catch (e) {
+      showToast('Tidak bisa terhubung ke server. Cek URL Railway.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Login';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  });
+</script>
+</body>
+</html>
